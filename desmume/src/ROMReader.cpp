@@ -80,7 +80,12 @@ struct STDROMReaderData
 
 void* STDROMReaderInit(const char* filename)
 {
-#if !defined(_MSC_VER) && !defined(__EMSCRIPTEN__)
+#if defined(__LIBRETRO__)
+	/* stat() cannot see content the frontend hands us as a URI (Android SAF),
+	   so ask the VFS instead of the C library */
+	if (!filestream_exists(filename))
+		return 0;
+#elif !defined(_MSC_VER) && !defined(__EMSCRIPTEN__)
 	struct stat sb;
 	if (stat(filename, &sb) == -1)
 		return 0;
